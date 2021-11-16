@@ -16,9 +16,15 @@ def test_identity():
     assert np.array_equal(grad_x2_val, np.ones_like(x2_val))
 
 def test_add_by_const():
+    # 静态图
+    # 返回一个占位符节点，Node类型
     x2 = ad.Variable(name = "x2")
+    # 调用Node的__add__方法，创建一个新的Node，inputs是x2，const_attrs是5
     y = 5 + x2
-
+    e = ad.Executor([y])
+    y_val,  = e.run(feed_dict = {x2 : 3})
+    # 创建计算梯度的计算树
+    # 返回一个Node列表，也就是梯度的节点
     grad_x2, = ad.gradients(y, [x2])
 
     executor = ad.Executor([y, grad_x2])
@@ -189,3 +195,16 @@ def test_matmul_two_vars():
     assert np.array_equal(y_val, expected_yval)
     assert np.array_equal(grad_x2_val, expected_grad_x2_val)
     assert np.array_equal(grad_x3_val, expected_grad_x3_val)
+
+
+if __name__ == "__main__":
+    test_add_by_const()
+    test_add_two_vars()
+    test_add_mul_mix_1()
+    test_add_mul_mix_2()
+    test_add_mul_mix_3()
+    test_matmul_two_vars()
+    test_mul_by_const()
+    test_grad_of_grad()
+    test_identity()
+    test_mul_two_vars()
